@@ -1,0 +1,271 @@
+{% load static %}
+{% load permission_tags %}
+
+<div class="sidebar">
+  <div class="sidebar-inner">
+    <div class="sidebar-logo">
+      <div class="peers ai-c fxw-nw">
+        <div class="peer peer-greed"><a class="sidebar-link td-n" href="index.html">
+            <div class="peers ai-c fxw-nw">
+              <div class="peer">
+                <div class="logo pl-2">
+                  <img src="{{ request_institute.logo.url }}" 
+                    alt="{{ request_institute.name }}"
+                    width="50">
+                </div>
+              </div>
+            </div>
+          </a></div>
+        <div class="peer">
+          <div class="mobile-toggle sidebar-toggle">
+            <a href="" class="td-n"><i class="ti-arrow-circle-left"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="sidebar-menu scrollable pos-r">
+      <li class="nav-item mT-30 actived">
+        <a class="sidebar-link" href="{% url account_urls.dashboard %}">
+          <span class="icon-holder">
+            <i class="c-blue-500 ti-home"></i>
+          </span>
+          <span class="title">
+            {{request_institute.name}} Dashboard 
+          </span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="sidebar-link" href="{% url 'pages:landing' %}" target="_blank">
+          <span class="icon-holder">
+            <i class="c-blue-500 ti-share"></i> 
+          </span>
+          <span class="title">Visit Site</span>
+        </a>
+      </li>
+
+      <!-- USER GUIDE -->
+      <li class="nav-item">
+        <a class="sidebar-link" href="{% url 'pages:userguide' %}">
+          <span class="icon-holder">
+            <i class="c-purple-500 ti-map"></i>
+          </span>
+          <span class="title">User Guide</span>
+        </a>
+      </li>
+
+    {% if user|has_role:'academic_officer, admin' %}
+      <!-- Counsel/Admission Dashboard -->
+      <li class="nav-item">
+        <a class="sidebar-link" href="{% url 'students:students_dashboard_index' %}">
+          <span class="icon-holder">
+            <i class="c-indigo-500 ti-bar-chart"></i>
+          </span>
+          <span class="title">Counsel & Admissions</span>
+        </a>
+      </li>
+      {% endif %}
+
+      <!-- Students -->
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder"><i class="c-orange-500 ti-layout-list-thumb"></i> </span>
+          <span class="title">Students</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          {% for menu_item in student_menu_items %}
+            <li>
+              <a class="sidebar-link" href="{{ menu_item.url }}">
+                {{ menu_item.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+
+      <!-- Teachers -->
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder"><i class="c-orange-500 ti-layout-list-thumb"></i> </span>
+          <span class="title">Teachers</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          {% for menu_item in teacher_menu_items %}
+            <li>
+              <a class="sidebar-link" href="{{ menu_item.url }}">
+                {{ menu_item.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+
+    {% if user|has_role:'academic_officer, admin' %}
+      <!-- Academic Tools -->
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder">
+            <i class="c-blue-500 ti-calendar"></i>
+          </span>
+          <span class="title">Academic Options</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.departments %}">
+              Departments
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.create_subject %}">
+              Create Subject
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url 'result:subject_groups' %}">
+              Subject Groups
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url 'result:create_subject_group' %}">
+              Add Subject Group
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.academic_sessions %}">
+              Academic Sessions
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.batch_list %}">
+              Batch List
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.create_batch %}">
+              Create Batch
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link"
+              href="{% url academic_urls.create_semester %}">
+              Create Semester
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url academic_urls.all_semester %}">
+              Semesters
+            </a>
+          </li>
+        </ul>
+      </li>
+    {% endif %}
+
+      <!-- PUBLISHING OPTIONS -->
+      {% if user|has_role:'admin, editor' %}
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder">
+            <i class="c-light-blue-500 ti-pencil"></i>
+          </span>
+          <span class="title">Publishing</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="sidebar-link" href="{% url 'articles:publish_article_from_dashboard' %}">
+              Publish Article
+            </a>
+            <a class="sidebar-link" 
+              href="{% url 'articles:dashboard_manage' %}">
+              Manage Articles
+            </a>
+            <a href="{% url 'articles:subscribers' %}"
+              class="sidebar-link">
+              Manage Subscribers
+            </a>
+            <hr>
+            <a class="sidebar-link" href="{% url 'notices_dashboard:publish_notice_documents' %}">
+              Publish Notice
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+
+      {% if  user|has_role:'accounts, admin' %}
+      <!-- PAYMENTS (RESTRICTED) -->
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder">
+            <img alt="Payments" src="{% static 'images/money.png' %}"
+              height="17">
+          </span>
+          <span class="title">Payments</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="sidebar-link" 
+              href="{% url 'payments:dashboard_ssl_payments_list' %}">
+              Manage Payments
+            </a>
+            <a class="sidebar-link" 
+              href="">
+              Student Payments
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+
+      {% if user|has_role:'admin' %}
+      <!-- USER OPTIONS -->
+      <li class="nav-item dropdown">
+        <a class="dropdown-toggle" href="javascript:void(0);">
+          <span class="icon-holder"><i class="c-orange-500 ti-layout-list-thumb"></i> </span>
+          <span class="title">Administrative</span>
+          <span class="arrow"><i class="ti-angle-right"></i></span>
+        </a>
+        <ul class="dropdown-menu">
+          {% if perms.auth.add_user %}
+            <li>
+              <a class="sidebar-link" 
+                href="{% url account_urls.add_user %}">
+                Add People
+              </a>
+            </li>
+            <li>
+            <a class="sidebar-link" 
+                href="{% url account_urls.user_requests %}">
+                User Requests
+              </a>
+            </li>
+          {% endif %}
+          <li>
+            <a class="sidebar-link" 
+              href="{% url account_urls.all_accounts %}">
+              Users
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" 
+              href="{% url account_urls.groups %}">
+              Groups
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>

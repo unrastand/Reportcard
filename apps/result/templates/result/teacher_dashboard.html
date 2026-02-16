@@ -1,0 +1,232 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard-body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'teachers:teacher_my_portal' teacher.employee_id %}">My Portal</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Teacher Dashboard</li>
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card">
+      <div class="card-content">
+        <div class="card-body text-primary">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3><i class="fas fa-book"></i></h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ assigned_subjects.count }}</h3>
+              <span>Assigned Subjects</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-success">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-plus-circle"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ recent_results.count }}</h3>
+              <span>Marks Entered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-info">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-calendar-check"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ recent_attendance.count }}</h3>
+              <span>Attendance Records</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-warning">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-users"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>0</h3>
+              <span>Students</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-8">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'result:teacher_mark_entry' %}" class="btn btn-primary btn-lg w-100">
+              <i class="fas fa-plus-circle"></i> Enter Marks
+            </a>
+          </div>
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'result:teacher_attendance_entry' %}" class="btn btn-success btn-lg w-100">
+              <i class="fas fa-calendar-check"></i> Mark Attendance
+            </a>
+          </div>
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'result:teacher_view_results' %}" class="btn btn-info btn-lg w-100">
+              <i class="fas fa-eye"></i> View Results
+            </a>
+          </div>
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'result:teacher_view_attendance' %}" class="btn btn-warning btn-lg w-100">
+              <i class="fas fa-list"></i> View Attendance
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">My Subjects</h5>
+      </div>
+      <div class="card-body">
+        {% if assigned_subjects %}
+          <ul class="list-group list-group-flush">
+            {% for subject in assigned_subjects %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ subject.name }}</strong><br>
+                  <small class="text-muted">{{ subject.subject_code }} | {{ subject.department_choice.name }}</small>
+                </div>
+                <span class="badge bg-primary rounded-pill">{{ subject.theory_marks }}/{{ subject.practical_marks }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No subjects assigned yet.</p>
+          <p class="text-small">Contact administration to assign subjects to you.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Recent Results</h5>
+      </div>
+      <div class="card-body">
+        {% if recent_results %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Subject</th>
+                  <th>Marks</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for result in recent_results %}
+                  <tr>
+                    <td>{{ result.student.admission_student.name }}</td>
+                    <td>{{ result.subject.name }}</td>
+                    <td><span class="badge bg-success">{{ result.total_marks }}</span></td>
+                    <td>{{ result.created|date:"M d, Y" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">No recent results.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Recent Attendance</h5>
+      </div>
+      <div class="card-body">
+        {% if recent_attendance %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for attendance in recent_attendance %}
+                  <tr>
+                    <td>{{ attendance.student.admission_student.name }}</td>
+                    <td>{{ attendance.subject.name }}</td>
+                    <td>
+                      {% if attendance.status == 'P' %}
+                        <span class="badge bg-success">Present</span>
+                      {% elif attendance.status == 'A' %}
+                        <span class="badge bg-danger">Absent</span>
+                      {% elif attendance.status == 'L' %}
+                        <span class="badge bg-warning">Late</span>
+                      {% else %}
+                        <span class="badge bg-info">Excused</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ attendance.date|date:"M d, Y" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">No recent attendance records.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

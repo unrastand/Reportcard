@@ -1,0 +1,182 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard-body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">My Portal</li>
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card">
+      <div class="card-content">
+        <div class="card-body text-primary">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3><i class="fas fa-pen"></i></h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ assigned_subjects.count }}</h3>
+              <span>My Subjects</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-success">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-clipboard-list"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ recent_results.count }}</h3>
+              <span>Recent Results</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-info">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-users"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ recent_attendance.count }}</h3>
+              <span>Recent Attendance</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12">
+    <div class="card text-danger">
+      <div class="card-content">
+        <div class="card-body">
+          <div class="media d-flex">
+            <div class="align-self-center">
+              <h3>
+                <i class="fas fa-chalkboard-teacher"></i>
+              </h3>
+            </div>
+            <div class="media-body text-right">
+              <h3>{{ teacher.name }}</h3>
+              <span>Welcome</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row gap-20">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <a href="{% url 'result:teacher_dashboard' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-tachometer-alt"></i> Teacher Dashboard
+          </a>
+          <a href="{% url 'result:teacher_mark_entry' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-plus-circle"></i> Enter Marks
+          </a>
+          <a href="{% url 'result:teacher_attendance_entry' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-calendar-check"></i> Mark Attendance
+          </a>
+          <a href="{% url 'result:teacher_view_results' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-eye"></i> View Results
+          </a>
+          <a href="{% url 'result:teacher_view_attendance' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-list"></i> View Attendance
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">My Assigned Subjects</h5>
+      </div>
+      <div class="card-body">
+        {% if assigned_subjects %}
+          <ul class="list-group list-group-flush">
+            {% for subject in assigned_subjects %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ subject.name }}</strong><br>
+                  <small class="text-muted">{{ subject.subject_code }}</small>
+                </div>
+                <span class="badge bg-primary rounded-pill">{{ subject.theory_marks }}/{{ subject.practical_marks }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No subjects assigned yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Recent Activity</h5>
+      </div>
+      <div class="card-body">
+        <h6>Recent Results:</h6>
+        {% if recent_results %}
+          <ul class="list-unstyled">
+            {% for result in recent_results %}
+              <li class="mb-2">
+                <small class="text-muted">{{ result.created|date:"M d, Y" }}</small><br>
+                <strong>{{ result.student.admission_student.name }}</strong><br>
+                <span class="badge bg-success">{{ result.total_marks }} marks</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No recent results.</p>
+        {% endif %}
+        
+        <hr>
+        
+        <h6>Recent Attendance:</h6>
+        {% if recent_attendance %}
+          <ul class="list-unstyled">
+            {% for attendance in recent_attendance %}
+              <li class="mb-2">
+                <small class="text-muted">{{ attendance.date|date:"M d, Y" }}</small><br>
+                <strong>{{ attendance.student.admission_student.name }}</strong><br>
+                <span class="badge bg-info">{{ attendance.get_status_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No recent attendance.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+

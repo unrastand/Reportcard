@@ -1,0 +1,77 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard-body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'teachers:teacher_my_portal' teacher.employee_id %}">My Portal</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'result:teacher_dashboard' %}">Teacher Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Results</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">My Subject Results</h5>
+        <p class="card-text text-muted">View and manage results for subjects assigned to you.</p>
+      </div>
+      <div class="card-body">
+        {% if results %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Semester</th>
+                  <th>Subject</th>
+                  <th>Theory Marks</th>
+                  <th>Practical Marks</th>
+                  <th>Total Marks</th>
+                  <th>Date Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for result in results %}
+                <tr>
+                  <td>{{ result.student.admission_student.name }}</td>
+                  <td>{{ result.semester }}</td>
+                  <td>{{ result.subject.name }}</td>
+                  <td>{{ result.theory_marks|default:"-" }}</td>
+                  <td>{{ result.practical_marks|default:"-" }}</td>
+                  <td>
+                    <span class="badge bg-success">{{ result.total_marks }}</span>
+                  </td>
+                  <td>{{ result.created|date:"M d, Y H:i" }}</td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <a href="#" class="btn btn-sm btn-outline-primary">Edit</a>
+                      <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-12">
+              <p class="text-muted">Total records: {{ results.count }}</p>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No results found</h5>
+            <p class="text-muted">You haven't entered any marks for your assigned subjects yet.</p>
+            <a href="{% url 'result:teacher_mark_entry' %}" class="btn btn-primary">Enter Marks</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

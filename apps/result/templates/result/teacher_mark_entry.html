@@ -1,0 +1,129 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard-body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'teachers:teacher_my_portal' teacher.employee_id %}">My Portal</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'result:teacher_dashboard' %}">Teacher Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Enter Marks</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Enter Marks for Students</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="{{ form.semester.id_for_label }}" class="form-label">Semester</label>
+              {{ form.semester }}
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
+              {{ form.subject }}
+            </div>
+            <div class="col-md-4 mb-3 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary">Load Students</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if formset %}
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Student Marks Entry</h5>
+        <p class="card-text text-muted">Enter marks for all students in the selected semester and subject.</p>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ formset.management_form }}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Theory Marks</th>
+                  <th>Practical Marks</th>
+                  <th>Total Marks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in formset %}
+                <tr>
+                  <td>
+                    {{ form.student_name }}
+                    {{ form.student }}
+                    {{ form.semester }}
+                    {{ form.subject }}
+                  </td>
+                  <td>
+                    {{ form.theory_marks }}
+                    {% if form.theory_marks.errors %}
+                      <div class="text-danger">{{ form.theory_marks.errors.0 }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ form.practical_marks }}
+                    {% if form.practical_marks.errors %}
+                      <div class="text-danger">{{ form.practical_marks.errors.0 }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="total-marks badge bg-secondary">0</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button type="submit" class="btn btn-success">Save All Marks</button>
+              <a href="{% url 'result:teacher_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add JavaScript to calculate total marks dynamically
+  const theoryInputs = document.querySelectorAll('input[name$="theory_marks"]');
+  const practicalInputs = document.querySelectorAll('input[name$="practical_marks"]');
+  const totalSpans = document.querySelectorAll('.total-marks');
+  
+  function calculateTotal(index) {
+    const theory = parseInt(theoryInputs[index].value) || 0;
+    const practical = parseInt(practicalInputs[index].value) || 0;
+    const total = theory + practical;
+    totalSpans[index].textContent = total;
+    totalSpans[index].className = total > 0 ? 'total-marks badge bg-success' : 'total-marks badge bg-secondary';
+  }
+  
+  theoryInputs.forEach((input, index) => {
+    input.addEventListener('input', () => calculateTotal(index));
+  });
+  
+  practicalInputs.forEach((input, index) => {
+    input.addEventListener('input', () => calculateTotal(index));
+  });
+});
+</script>
+
+{% endblock %}

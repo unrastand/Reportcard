@@ -1,0 +1,137 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard-body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'teachers:teacher_my_portal' teacher.employee_id %}">My Portal</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'result:teacher_dashboard' %}">Teacher Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Mark Attendance</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Mark Attendance for Students</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label for="{{ form.semester.id_for_label }}" class="form-label">Semester</label>
+              {{ form.semester }}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
+              {{ form.subject }}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+              {{ form.date }}
+            </div>
+            <div class="col-md-3 mb-3 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary">Load Students</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if formset %}
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Student Attendance Entry</h5>
+        <p class="card-text text-muted">Mark attendance for all students in the selected semester, subject, and date.</p>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ formset.management_form }}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Attendance Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in formset %}
+                <tr>
+                  <td>
+                    {{ form.student_name }}
+                    {{ form.student }}
+                    {{ form.subject }}
+                    {{ form.semester }}
+                    {{ form.date }}
+                  </td>
+                  <td>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                      <div class="text-danger">{{ form.status.errors.0 }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-success present-btn" data-status="P">Present</button>
+                      <button type="button" class="btn btn-danger absent-btn" data-status="A">Absent</button>
+                      <button type="button" class="btn btn-warning late-btn" data-status="L">Late</button>
+                      <button type="button" class="btn btn-info excused-btn" data-status="E">Excused</button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button type="submit" class="btn btn-success">Save All Attendance</button>
+              <a href="{% url 'result:teacher_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add JavaScript to handle quick attendance buttons
+  const presentButtons = document.querySelectorAll('.present-btn');
+  const absentButtons = document.querySelectorAll('.absent-btn');
+  const lateButtons = document.querySelectorAll('.late-btn');
+  const excusedButtons = document.querySelectorAll('.excused-btn');
+  
+  function setAttendance(buttons, status) {
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => {
+        const select = button.closest('tr').querySelector('select[name$="status"]');
+        select.value = status;
+        
+        // Update button styling
+        button.closest('.btn-group').querySelectorAll('button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+      });
+    });
+  }
+  
+  setAttendance(presentButtons, 'P');
+  setAttendance(absentButtons, 'A');
+  setAttendance(lateButtons, 'L');
+  setAttendance(excusedButtons, 'E');
+});
+</script>
+
+{% endblock %}
