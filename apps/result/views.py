@@ -264,43 +264,51 @@ def teacher_mark_entry(request):
                 queryset=Result.objects.none()
             )
             if formset.is_valid():
-                with transaction.atomic():
-                    saved_count = 0
-                    for row_form in formset:
-                        cleaned_data = row_form.cleaned_data
-                        if not cleaned_data:
-                            continue
-                        student = cleaned_data['student']
-                        semester = cleaned_data['semester']
-                        subject = cleaned_data['subject']
-                        practical_marks = cleaned_data.get('practical_marks')
-                        theory_marks = cleaned_data.get('theory_marks')
+                pending_updates = []
+                for row_form in formset:
+                    cleaned_data = row_form.cleaned_data
+                    if not cleaned_data:
+                        continue
+                    student = cleaned_data['student']
+                    semester = cleaned_data['semester']
+                    subject = cleaned_data['subject']
+                    practical_marks = cleaned_data.get('practical_marks')
+                    theory_marks = cleaned_data.get('theory_marks')
 
-                        if subject not in assigned_subjects:
-                            row_form.add_error(None, 'You are not assigned to one or more selected subjects.')
-                            continue
-                        if practical_marks is not None and (
-                            practical_marks < 0 or practical_marks > subject.practical_marks
-                        ):
-                            row_form.add_error('practical_marks', f'Enter 0-{subject.practical_marks}.')
-                            continue
-                        if theory_marks is not None and (
-                            theory_marks < 0 or theory_marks > subject.theory_marks
-                        ):
-                            row_form.add_error('theory_marks', f'Enter 0-{subject.theory_marks}.')
-                            continue
+                    if subject not in assigned_subjects:
+                        row_form.add_error(None, 'You are not assigned to one or more selected subjects.')
+                        continue
+                    if practical_marks is not None and (
+                        practical_marks < 0 or practical_marks > subject.practical_marks
+                    ):
+                        row_form.add_error('practical_marks', f'Enter 0-{subject.practical_marks}.')
+                        continue
+                    if theory_marks is not None and (
+                        theory_marks < 0 or theory_marks > subject.theory_marks
+                    ):
+                        row_form.add_error('theory_marks', f'Enter 0-{subject.theory_marks}.')
+                        continue
+                    pending_updates.append({
+                        'student': student,
+                        'semester': semester,
+                        'subject': subject,
+                        'practical_marks': practical_marks,
+                        'theory_marks': theory_marks,
+                    })
 
-                        Result.objects.update_or_create(
-                            student=student,
-                            semester=semester,
-                            subject=subject,
-                            defaults={
-                                'practical_marks': practical_marks,
-                                'theory_marks': theory_marks,
-                            }
-                        )
-                        saved_count += 1
                 if all([not item.errors for item in formset.forms]):
+                    saved_count = len(pending_updates)
+                    with transaction.atomic():
+                        for item in pending_updates:
+                            Result.objects.update_or_create(
+                                student=item['student'],
+                                semester=item['semester'],
+                                subject=item['subject'],
+                                defaults={
+                                    'practical_marks': item['practical_marks'],
+                                    'theory_marks': item['theory_marks'],
+                                }
+                            )
                     messages.success(request, f'Saved marks for {saved_count} student(s).')
                     return redirect('result:teacher_view_results')
             form = TeacherMarkEntryForm()
